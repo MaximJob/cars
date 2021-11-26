@@ -1,0 +1,151 @@
+<template>
+  <div class="car">
+    <v-card
+      v-if="
+        detailedCar &&
+        detailedCar.generations &&
+        detailedCar.generations[0] &&
+        car
+      "
+      class="mx-auto"
+      width="100%"
+      height="100%"
+    >
+      <v-img
+        class="white--text align-end"
+        height="400px"
+        :src="car.image ? car.image : require('../assets/image.png')"
+      >
+        <v-card-title>{{ detailedCar.model }}</v-card-title>
+      </v-img>
+
+      <v-card-actions>
+        <v-btn v-if="!isItMyCar" icon @click="addCar()">
+          <v-icon size="24px">mdi-plus</v-icon>
+        </v-btn>
+        <v-btn v-else icon @click="removeCar()">
+          <v-icon size="24px">mdi-minus</v-icon>
+        </v-btn>
+        <v-btn v-if="!isItMyFavorite" icon @click="addFavorite()">
+          <v-icon size="24px">mdi-bookmark</v-icon>
+        </v-btn>
+        <v-btn v-else icon @click="removeFavorite()">
+          <v-icon size="24px">mdi-delete</v-icon>
+        </v-btn>
+      </v-card-actions>
+
+      <v-card-subtitle class="pb-0"> </v-card-subtitle>
+
+      <v-card-text class="text--primary">
+        <v-img
+          class="white--text align-end"
+          width="64px"
+          height="64px"
+          :src="
+            detailedCar.brand.image !== '-'
+              ? detailedCar.brand.image
+              : require('../assets/image.png')
+          "
+        >
+        </v-img>
+        <div>Производитель: {{ detailedCar.brand.name }}</div>
+
+        <div>Страна: {{ detailedCar.brand.country }}</div>
+      </v-card-text>
+
+      <generation-info
+        v-for="car in detailedCar.generations"
+        :key="car.id"
+        :data="car"
+      ></generation-info>
+
+      <v-carousel
+        v-if="detailedCar.others.length"
+        :height="400"
+        :hide-delimiters="true"
+        v-model="model"
+      >
+        <v-carousel-item v-for="car in detailedCar.others" :key="car.id">
+          <v-sheet width="80%" height="100%" tile :style="{ margin: '0 10%' }">
+            <car-card :data="car"></car-card>
+          </v-sheet>
+        </v-carousel-item>
+      </v-carousel>
+    </v-card>
+
+    <span v-else>Пусто</span>
+  </div>
+</template>
+
+<script>
+import CarCard from "../components/home/CarCard.vue";
+import GenerationInfo from "../components/userCars/GenerationInfo.vue";
+export default {
+  components: { CarCard, GenerationInfo },
+  data() {
+    return {
+      model: 0,
+      colors: ["primary", "secondary", "yellow darken-2"],
+    };
+  },
+  methods: {
+    addCar() {
+      this.$store.dispatch("cars/addCar", this.car.id);
+    },
+    removeCar() {
+      this.$store.dispatch("cars/removeCar", this.car.id);
+    },
+    addFavorite() {
+      this.$store.dispatch("cars/addFavorite", this.car.id);
+    },
+    removeFavorite() {
+      this.$store.dispatch("cars/removeFavorite", this.car.id);
+    },
+  },
+  computed: {
+    detailedCar() {
+      return this.$store.getters["cars/detailedCar"];
+    },
+    isItMyCar() {
+      const myCars = this.$store.getters["cars/myCars"];
+      return myCars.find((el) => el.id === this.car.id);
+    },
+    isItMyFavorite() {
+      const favorite = this.$store.getters["cars/favorite"];
+      return favorite.find((el) => el.id === this.car.id);
+    },
+    currentRouteQueryId() {
+      return this.$route.query.id;
+    },
+    car() {
+      return this.detailedCar.generations.find(
+        (el) => el.id === this.currentRouteQueryId
+      );
+    },
+  },
+  watch: {
+    currentRouteQueryId() {
+      this.$store.dispatch("cars/loadDetailedCar", {
+        id: this.currentRouteQueryId,
+      });
+    },
+  },
+  async beforeMount() {
+    this.$store.commit("startLoading");
+    await this.$store.dispatch("cars/loadDetailedCar", {
+      id: this.currentRouteQueryId,
+    });
+    this.$store.commit("endLoading");
+  },
+};
+</script>
+
+<style lang="scss" scoped>
+.car {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+</style>
