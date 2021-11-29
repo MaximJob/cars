@@ -205,7 +205,13 @@ export default new Vuex.Store({
   actions: {
     async loadUsers(context) {
       context.commit("startLoading");
-      await getData("user").then((users) => {
+
+      const url = "user";
+      const headers = {
+        Authorization: context.state.access_token,
+      };
+
+      await getData(url, {}, headers).then((users) => {
         context.commit("setUsers", users);
       });
       context.commit("endLoading");
@@ -246,27 +252,46 @@ export default new Vuex.Store({
 
     async loadBrands(context) {
       context.commit("startLoading");
+
       let url = "car/brand-list";
+      const headers = {
+        Authorization: context.state.access_token,
+      };
+
       const brand = context.state.filters.brand.value;
       if (brand) {
         url += "?char=" + brand[0].toLowerCase();
       }
-      await getData(url).then(({ brands }) => {
+      await getData(url, {}, headers).then(({ brands }) => {
         context.commit("setBrands", brands);
         context.commit("resetCars");
       });
       context.commit("endLoading");
     },
     async loadDetailedCar(context, { id }) {
+      context.commit("startLoading");
+
+      const url = `car/about-model?model=${id}`;
+      const headers = {
+        Authorization: context.state.access_token,
+      };
+
       await context.dispatch("loadMyCars");
       await context.dispatch("loadFavorite");
-      await getData(`car/about-model?model=${id}`).then((info) => {
+      await getData(url, {}, headers).then((info) => {
         context.commit("setDetailedCar", info);
       });
+      context.commit("endLoading");
     },
     async loadCars(context, { name, id }) {
       context.commit("startLoading");
-      await getData(`car/model-list?brand=${id}`).then(({ models }) => {
+
+      const url = `car/model-list?brand=${id}`;
+      const headers = {
+        Authorization: context.state.access_token,
+      };
+
+      await getData(url, {}, headers).then(({ models }) => {
         context.commit("setCars", models);
         context.state.filters.brand = {
           text: name,
@@ -277,24 +302,38 @@ export default new Vuex.Store({
     },
     async loadMyCars(context) {
       context.commit("startLoading");
-      await getData("manager/get-list-ownership-car", {
-        user_id: context.state.id,
-      }).then(({ cars }) => {
+
+      const url = "manager/get-list-ownership-car";
+      const body = { user_id: context.state.id };
+      const headers = {
+        Authorization: context.state.access_token,
+      };
+
+      await getData(url, body, headers).then(({ cars }) => {
         context.commit("setMyCars", cars);
       });
       context.commit("endLoading");
     },
     async loadFavorite(context) {
       context.commit("startLoading");
-      await getData("manager/get-list-favorite-car", {
-        user_id: context.state.id,
-      }).then(({ cars }) => {
+
+      const url = "manager/get-list-favorite-car";
+      const body = { user_id: context.state.id };
+      const headers = {
+        Authorization: context.state.access_token,
+      };
+
+      await getData(url, body, headers).then(({ cars }) => {
         context.commit("setFavorite", cars);
       });
       context.commit("endLoading");
     },
     async filterCars(context) {
       let url = "car/model-list-filter?";
+      const headers = {
+        Authorization: context.state.access_token,
+      };
+
       const filters = context.state.filters;
       const keys = Object.keys(filters);
       keys.forEach((key) =>
@@ -303,51 +342,79 @@ export default new Vuex.Store({
           : ""
       );
       url = url.slice(0, -1);
-      await getData(url).then(({ models }) => {
+      await getData(url, {}, headers).then(({ models }) => {
         context.commit("setCars", models);
       });
     },
 
     async addCar(context, generation_id) {
-      await postData("manager/add-ownership", {
+      const url = "manager/add-ownership";
+      const body = {
         user_id: context.state.id,
         generation_id,
-      });
+      };
+      const headers = {
+        headers: {
+          Authorization: context.state.access_token,
+        },
+      };
+
+      await postData(url, body, headers);
       await context.dispatch("loadMyCars");
     },
     async removeCar(context, generation_id) {
-      await postData("manager/remove-ownership", {
+      const url = "manager/remove-ownership";
+      const body = {
         user_id: context.state.id,
         generation_id,
-      });
+      };
+      const headers = {
+        headers: {
+          Authorization: context.state.access_token,
+        },
+      };
+
+      await postData(url, body, headers);
       await context.dispatch("loadMyCars");
     },
     async addFavorite(context, generation_id) {
-      await postData("manager/add-favorite", {
+      const url = "manager/add-favorite";
+      const body = {
         user_id: context.state.id,
         generation_id,
-      });
+      };
+      const headers = {
+        headers: {
+          Authorization: context.state.access_token,
+        },
+      };
+
+      await postData(url, body, headers);
       await context.dispatch("loadFavorite");
     },
     async removeFavorite(context, generation_id) {
-      await postData("manager/remove-favorite", {
+      const url = "manager/remove-favorite";
+      const body = {
         user_id: context.state.id,
         generation_id,
-      });
+      };
+      const headers = {
+        headers: {
+          Authorization: context.state.access_token,
+        },
+      };
+
+      await postData(url, body, headers);
       await context.dispatch("loadFavorite");
     },
   },
   modules: {},
 });
 
-async function postData(url, body = {}) {
+async function postData(url, body = {}, headers = {}) {
   let response = {};
   await Vue.http
-    .post(url, body, {
-      headers: {
-        Authorization: localStorage.access_token,
-      },
-    })
+    .post(url, body, headers)
     .then((response) => response.json())
     .then((data) => {
       response = data.content;
@@ -358,15 +425,10 @@ async function postData(url, body = {}) {
   return response;
 }
 
-async function getData(url, params = {}) {
+async function getData(url, params = {}, headers = {}) {
   let response = { models: [], brands: [], cars: [] };
   await Vue.http
-    .get(url, {
-      params,
-      headers: {
-        Authorization: localStorage.access_token,
-      },
-    })
+    .get(url, { params, headers })
     .then((response) => response.json())
     .then((data) => {
       response = data.content;

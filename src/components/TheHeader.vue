@@ -74,7 +74,6 @@ export default {
   },
   methods: {
     logout() {
-      this.$store.commit("reset");
       this.$store.dispatch("logout");
     },
   },
