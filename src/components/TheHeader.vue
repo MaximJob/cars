@@ -43,31 +43,8 @@
 export default {
   data() {
     return {
-      linksLogged: [
-        {
-          title: "ГЛАВНАЯ",
-          url: "/",
-          img: require("../assets/logo.svg"),
-        },
-        {
-          title: "МОИ АВТОМОБИЛИ",
-          url: "/userCars",
-        },
-        {
-          title: "ИЗБРАННОЕ",
-          url: "/favorite",
-        },
-        {
-          title: "ВСЕ ПОЛЬЗОВАТЕЛИ",
-          url: "/users",
-        },
-      ],
-      linksUnlogged: [
-        {
-          title: "ВОЙТИ",
-          url: "/login",
-        },
-      ],
+      linksLogged: this.$store.getters["header/linksLogged"],
+      linksUnlogged: this.$store.getters["header/linksUnlogged"],
       drawer: false,
       group: null,
     };

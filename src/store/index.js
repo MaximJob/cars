@@ -2,6 +2,7 @@ import Vue from "vue";
 import Vuex from "vuex";
 import router from "@/router";
 import filtersState from "./filters.js";
+import header from "./header.js";
 
 Vue.use(Vuex);
 
@@ -409,7 +410,7 @@ export default new Vuex.Store({
       await context.dispatch("loadFavorite");
     },
   },
-  modules: { filtersState },
+  modules: { filtersState, header },
 });
 
 async function postData(url, body = {}, headers = {}) {
