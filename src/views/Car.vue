@@ -15,6 +15,7 @@
         class="white--text align-end"
         height="400px"
         :src="car.image ? car.image : require('../assets/image.png')"
+        :lazy-src="require('../assets/image.png')"
       >
         <v-card-title>{{ detailedCar.model }}</v-card-title>
       </v-img>
@@ -53,11 +54,13 @@
         <div>Страна: {{ detailedCar.brand.country }}</div>
       </v-card-text>
 
-      <generation-info
-        v-for="car in detailedCar.generations"
-        :key="car.id"
-        :data="car"
-      ></generation-info>
+      <div class="generationsWrap">
+        <generation-info
+          v-for="car in detailedCar.generations"
+          :key="car.id"
+          :data="car"
+        ></generation-info>
+      </div>
 
       <v-carousel
         v-if="detailedCar.others.length"
@@ -147,5 +150,25 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
+
+  .generationsWrap {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: auto;
+    align-items: center;
+    justify-items: center;
+    padding: 0 10%;
+  }
+
+  @media screen and (max-width: 1024px) {
+    .generationsWrap {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media screen and (max-width: 768px) {
+    .generationsWrap {
+      grid-template-columns: 1fr;
+    }
+  }
 }
 </style>

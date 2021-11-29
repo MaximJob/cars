@@ -6,12 +6,30 @@ export default {
     brands: [],
     cars: [],
     filters: {
-      model: "",
-      brand: "",
-      volume: "",
-      transmission: "",
-      engine: "",
-      body: "",
+      model: {
+        text: "",
+        value: "",
+      },
+      brand: {
+        text: "",
+        value: "",
+      },
+      volume: {
+        text: "",
+        value: "",
+      },
+      transmission: {
+        text: "",
+        value: "",
+      },
+      engine: {
+        text: "",
+        value: "",
+      },
+      body: {
+        text: "",
+        value: "",
+      },
     },
     myCars: [],
     favorite: [],
@@ -38,8 +56,14 @@ export default {
     },
     resetFilters(state) {
       state.filters = {
-        model: "",
-        brand: "",
+        model: {
+          text: "",
+          value: "",
+        },
+        brand: {
+          text: "",
+          value: "",
+        },
         volume: {
           text: "",
           value: "",
@@ -52,21 +76,42 @@ export default {
           text: "",
           value: "",
         },
-        body: "",
+        body: {
+          text: "",
+          value: "",
+        },
       };
     },
     reset(state) {
       state.brands = [];
       state.cars = [];
-      (state.filters = {
-        model: "",
-        brand: "",
-        volume: "",
-        transmission: "",
-        engine: "",
-        body: "",
-      }),
-        (state.myCars = []);
+      state.filters = {
+        model: {
+          text: "",
+          value: "",
+        },
+        brand: {
+          text: "",
+          value: "",
+        },
+        volume: {
+          text: "",
+          value: "",
+        },
+        transmission: {
+          text: "",
+          value: "",
+        },
+        engine: {
+          text: "",
+          value: "",
+        },
+        body: {
+          text: "",
+          value: "",
+        },
+      };
+      state.myCars = [];
       state.favorite = [];
       state.detailedCar = {};
     },
@@ -94,9 +139,9 @@ export default {
   actions: {
     async loadBrands(context) {
       let url = "car/brand-list";
-      const filters = context.state.filters;
-      if (filters.brand) {
-        url += "?char=" + filters.brand[0].toLowerCase();
+      const brand = context.state.filters.brand.value;
+      if (brand) {
+        url += "?char=" + brand[0].toLowerCase();
       }
       await getData(url).then(({ brands }) => {
         context.commit("setBrands", brands);
@@ -113,7 +158,10 @@ export default {
     async loadCars(context, { name, id }) {
       await getData(`car/model-list?brand=${id}`).then(({ models }) => {
         context.commit("setCars", models);
-        context.state.filters.brand = name;
+        context.state.filters.brand = {
+          text: name,
+          value: name,
+        };
       });
     },
     async loadMyCars(context) {
@@ -134,13 +182,10 @@ export default {
       let url = "car/model-list-filter?";
       const filters = context.state.filters;
       const keys = Object.keys(filters);
-      keys.map((key) =>
-        filters[key].value !== null && filters[key].value !== undefined
-          ? (filters[key] = filters[key].value)
-          : ""
-      );
       keys.forEach((key) =>
-        filters[key] !== "" ? (url += key + "=" + filters[key] + "&") : ""
+        filters[key].value !== ""
+          ? (url += key + "=" + filters[key].value + "&")
+          : ""
       );
       url = url.slice(0, -1);
       await getData(url).then(({ models }) => {

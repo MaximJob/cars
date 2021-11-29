@@ -1,11 +1,13 @@
 <template>
   <div class="generationInfo">
-    <v-card class="mx-auto" max-width="344">
+    <v-card class="mx-auto" width="260px">
       <v-img
         :src="
           data.image !== '-' ? data.image : require('../../assets/image.png')
         "
         :lazy-src="require('../../assets/image.png')"
+        contain
+        width="260px"
         height="200px"
       ></v-img>
 
@@ -40,6 +42,7 @@ export default {
 
 <style lang="scss" scoped>
 .generationInfo {
+  width: 260px;
   img {
     width: 200px;
     height: 150px;

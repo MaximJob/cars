@@ -2,7 +2,7 @@
   <div class="brand">
     <v-card
       class="mx-auto"
-      min-width="240"
+      min-width="240px"
       width="100%"
       :style="{ paddingTop: '40px' }"
     >

@@ -2,7 +2,7 @@
   <div class="login">
     <h2>Логин</h2>
 
-    <form>
+    <form @submit.prevent="submit()">
       <v-text-field
         v-model.trim="email"
         :error-messages="emailErrors"
@@ -20,7 +20,7 @@
         @blur="$v.password.$touch()"
       ></v-text-field>
 
-      <v-btn class="btnSubmit" @click="submit()">Логин</v-btn>
+      <v-btn type="submit" class="btnSubmit">Логин</v-btn>
       <div @click="toRegistration()" class="swap">
         <h5>Нет аккаунта? Зарегистрироваться.</h5>
       </div>
@@ -49,16 +49,16 @@ export default {
     emailErrors() {
       const errors = [];
       if (!this.$v.email.$dirty) return errors;
-      !this.$v.email.email && errors.push("Must be valid e-mail");
-      !this.$v.email.required && errors.push("E-mail is required");
+      !this.$v.email.email && errors.push("E-mail должен быть валидным.");
+      !this.$v.email.required && errors.push("E-mail отсутствует.");
       return errors;
     },
     passwordErrors() {
       const errors = [];
       if (!this.$v.password.$dirty) return errors;
       !this.$v.password.minLength &&
-        errors.push("Password must be min 8 characters long");
-      !this.$v.password.required && errors.push("Password is required.");
+        errors.push("Минимальная длина пароля 8 символов.");
+      !this.$v.password.required && errors.push("Пароль отсутствует.");
       return errors;
     },
   },
@@ -101,7 +101,7 @@ form {
   background-color: #fbfaf7;
   border-radius: 30px;
   display: grid;
-  grid-template: 70px 70px 90px 10px / 1fr;
+  grid-template: 70px 70px 90px 30px / 1fr;
   box-shadow: 0 14px 20px 6px #999999;
 }
 

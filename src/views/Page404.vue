@@ -18,6 +18,7 @@ export default {};
   justify-content: center;
   flex-direction: column;
   background-color: #ff4040;
+  padding: 20vh 0;
 
   h2,
   button {

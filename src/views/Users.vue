@@ -5,6 +5,7 @@
       :items="users"
       item-key="id"
       class="elevation-1"
+      :style="{ width: '100%' }"
     >
     </v-data-table>
   </div>

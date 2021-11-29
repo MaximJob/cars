@@ -1,6 +1,6 @@
 <template>
   <div class="home">
-    <Filters :brands="brands" :cars="cars" :brandName="filters.brand"></Filters>
+    <Filters :brands="brands" :cars="cars" :brandName="filtersBrand"></Filters>
     <ContextField :brands="brands" :cars="cars"></ContextField>
   </div>
 </template>
@@ -18,8 +18,8 @@ export default {
     cars() {
       return this.$store.getters["cars/cars"];
     },
-    filters() {
-      return this.$store.getters["cars/filters"];
+    filtersBrand() {
+      return this.$store.getters["cars/filters"].brand;
     },
   },
   async beforeMount() {

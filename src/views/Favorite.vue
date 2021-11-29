@@ -6,7 +6,8 @@
         v-for="(car, i) in cars"
         :key="car.id + i"
         class="mx-auto"
-        max-width="400"
+        min-width="240"
+        width="100%"
         :style="{ marginBottom: '20px' }"
       >
         <v-img class="white--text align-end" height="200px" :src="car.image">

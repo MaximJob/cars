@@ -2,9 +2,15 @@
   <aside class="filters">
     <h4>Фильтры</h4>
     <form @submit.prevent="filter()">
-      <v-text-field label="Модель" v-model.trim="filters.model"></v-text-field>
+      <v-text-field
+        label="Модель"
+        v-model.trim="filters.model.value"
+      ></v-text-field>
 
-      <v-text-field label="Бренд" v-model.trim="filters.brand"></v-text-field>
+      <v-text-field
+        label="Бренд"
+        v-model.trim="filters.brand.value"
+      ></v-text-field>
 
       <v-select
         v-model="filters.volume"
@@ -55,9 +61,14 @@
       ></v-select>
 
       <v-btn elevation="1" @click="filter()">Искать</v-btn>
-      <v-btn v-if="!isFilteresEmpty()" elevation="2" @click="clear()"
-        >Сбросить</v-btn
+      <v-btn
+        v-if="!isFilteresEmpty"
+        elevation="2"
+        @click="reset()"
+        class="mr-4"
       >
+        Сбросить
+      </v-btn>
     </form>
   </aside>
 </template>
@@ -74,15 +85,21 @@ export default {
       required: true,
     },
     brandName: {
-      type: String,
+      type: Object,
       required: true,
     },
   },
   data() {
     return {
       filters: {
-        model: "",
-        brand: "",
+        model: {
+          text: "",
+          value: "",
+        },
+        brand: {
+          text: "",
+          value: "",
+        },
         volume: {
           text: "",
           value: "",
@@ -95,7 +112,10 @@ export default {
           text: "",
           value: "",
         },
-        body: "",
+        body: {
+          text: "",
+          value: "",
+        },
       },
 
       volumes: [
@@ -161,66 +181,124 @@ export default {
         },
       ],
       bodys: [
-        "Купе",
-        "Родстер",
-        "Седан",
-        "Хэтчбек",
-        "Внедорожник",
-        "Универсал",
-        "вариатоТарга",
-        "Кабриолет",
-        "Купе - хардтоп",
-        "Минивэн",
-        "Лифтбек",
-        "Лимузин",
-        "Пикап",
-        "Компактвэн",
-        "Спидстер",
-        "Фастбек",
-        "Седан - хардтоп",
-        "Фаэтон",
-        "Микровэн",
-        "Фургон",
+        {
+          text: "Купе",
+          value: "Купе",
+        },
+        {
+          text: "Родстер",
+          value: "Родстер",
+        },
+        {
+          text: "Седан",
+          value: "Седан",
+        },
+        {
+          text: "Хэтчбек",
+          value: "Хэтчбек",
+        },
+        {
+          text: "Внедорожник",
+          value: "Внедорожник",
+        },
+        {
+          text: "Универсал",
+          value: "Универсал",
+        },
+        {
+          text: "вариатоТарга",
+          value: "вариатоТарга",
+        },
+        {
+          text: "Кабриолет",
+          value: "Кабриолет",
+        },
+        {
+          text: "Купе - хардтоп",
+          value: "Купе - хардтоп",
+        },
+        {
+          text: "Минивэн",
+          value: "Минивэн",
+        },
+        {
+          text: "Лифтбек",
+          value: "Лифтбек",
+        },
+        {
+          text: "Лимузин",
+          value: "Лимузин",
+        },
+        {
+          text: "Пикап",
+          value: "Пикап",
+        },
+        {
+          text: "Компактвэн",
+          value: "Компактвэн",
+        },
+        {
+          text: "Спидстер",
+          value: "Спидстер",
+        },
+        {
+          text: "Фастбек",
+          value: "Фастбек",
+        },
+        {
+          text: "Седан - хардтоп",
+          value: "Седан - хардтоп",
+        },
+        {
+          text: "Фаэтон",
+          value: "Фаэтон",
+        },
+        {
+          text: "Микровэн",
+          value: "Микровэн",
+        },
+        {
+          text: "Фургон",
+          value: "Фургон",
+        },
       ],
     };
   },
+  computed: {
+    isFilteresEmpty() {
+      let result = true;
+      const keys = Object.keys(this.filters);
+      keys.forEach((el) => (result &= this.filters[el].value === ""));
+      return result;
+    },
+    isFilteresEmptyExceptBrand() {
+      let result = true;
+      const keys = Object.keys(this.filters).filter((el) => el !== "brand");
+      keys.forEach((el) => (result &= this.filters[el].value === ""));
+      result &= this.filters.brand.value !== "";
+      return result;
+    },
+  },
   methods: {
     filter() {
-      if (this.isFilteresEmptyExceptBrand()) {
+      if (this.isFilteresEmptyExceptBrand) {
         this.$store.commit("cars/setFilters", { ...this.filters });
         this.$store.dispatch("cars/loadBrands");
-      } else if (!this.isFilteresEmpty()) {
+      } else if (!this.isFilteresEmpty) {
         this.$store.commit("cars/setFilters", { ...this.filters });
         this.$store.dispatch("cars/filterCars");
       }
     },
-    clear() {
-      if (this.$route.path !== "/") {
+    reset() {
+      if (
+        this.$route.query.brandName !== "" &&
+        this.$route.query.brandId !== ""
+      ) {
         this.$router.push("/");
       }
       this.$store.commit("cars/resetFilters");
       this.filters = this.$store.getters["cars/filters"];
       this.$store.dispatch("cars/loadBrands");
-    },
-    isFilteresEmpty() {
-      return Boolean(
-        this.filters.model === "" &&
-          this.filters.brand === "" &&
-          this.filters.volume.value === "" &&
-          this.filters.transmission.value === "" &&
-          this.filters.engine.value === "" &&
-          this.filters.body === ""
-      );
-    },
-    isFilteresEmptyExceptBrand() {
-      return Boolean(
-        this.filters.model === "" &&
-          this.filters.brand !== "" &&
-          this.filters.volume.value === "" &&
-          this.filters.transmission.value === "" &&
-          this.filters.engine.value === "" &&
-          this.filters.body === ""
-      );
     },
   },
   watch: {

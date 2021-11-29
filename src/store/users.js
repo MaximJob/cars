@@ -3,19 +3,19 @@ import Vue from "vue";
 export default {
   namespaced: true,
   state: {
-    users: []
+    users: [],
   },
   mutations: {
     setUsers(state, users) {
-      state.users = users
+      state.users = users;
     },
     reset(state) {
-      state.users = []
-    }
+      state.users = [];
+    },
   },
   getters: {
     users(state) {
-      return state.users
+      return state.users;
     },
   },
   actions: {
@@ -33,6 +33,6 @@ export default {
         .catch((error) => {
           console.log(error);
         });
-    }
+    },
   },
-}
+};

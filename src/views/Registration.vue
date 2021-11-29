@@ -2,7 +2,7 @@
   <div class="registration">
     <h2>Регистрация</h2>
 
-    <form>
+    <form @submit.prevent="submit()">
       <v-text-field
         v-model.trim="name"
         :error-messages="nameErrors"
@@ -29,7 +29,7 @@
         @blur="$v.password.$touch()"
       ></v-text-field>
 
-      <v-btn class="btnSubmit" @click="submit()">Зарегистрироваться</v-btn>
+      <v-btn type="submit" class="btnSubmit">Зарегистрироваться</v-btn>
       <div @click="toLogin()" class="swap">
         <h5>Есть аккаунт? Войти.</h5>
       </div>
@@ -72,22 +72,28 @@ export default {
     nameErrors() {
       const errors = [];
       if (!this.$v.name.$dirty) return errors;
-      !this.$v.name.required && errors.push("Name is required.");
+      !this.$v.name.required && errors.push("Имя отсутствует.");
       return errors;
     },
     emailErrors() {
       const errors = [];
       if (!this.$v.email.$dirty) return errors;
-      !this.$v.email.email && errors.push("Must be valid e-mail");
-      !this.$v.email.required && errors.push("E-mail is required");
+      !this.$v.email.email && errors.push("E-mail должен быть валидным.");
+      !this.$v.email.required && errors.push("E-mail отсутствует.");
       return errors;
     },
     passwordErrors() {
       const errors = [];
       if (!this.$v.password.$dirty) return errors;
       !this.$v.password.minLength &&
-        errors.push("Password must be min 8 characters long");
-      !this.$v.password.required && errors.push("Password is required.");
+        errors.push("Минимальная длина пароля 8 символов.");
+      !this.$v.password.required && errors.push("Пароль отсутствует.");
+      !this.$v.password.containsUppercase &&
+        errors.push("Пароль должен содержать буквы верхнего регистра.");
+      !this.$v.password.containsLowercase &&
+        errors.push("Пароль должен содержать буквы нижнего регистра.");
+      !this.$v.password.containsNumber &&
+        errors.push("Пароль должен содержать цифры.");
       return errors;
     },
   },
@@ -130,7 +136,7 @@ form {
   background-color: #fbfaf7;
   border-radius: 30px;
   display: grid;
-  grid-template: 70px 70px 70px 90px 10px / 1fr;
+  grid-template: 70px 70px 70px 90px 30px / 1fr;
   box-shadow: 0 14px 20px 6px #999999;
 }
 

@@ -1,6 +1,6 @@
 <template>
   <div class="car">
-    <v-card class="mx-auto" min-width="300px" width="100%">
+    <v-card class="mx-auto" max-width="260px">
       <v-img
         :src="
           data.image !== '-' ? data.image : require('../../assets/image.png')
@@ -8,8 +8,6 @@
         :lazy-src="require('../../assets/image.png')"
         contain
         height="200px"
-        max-width="300"
-        :style="{ margin: '0 auto' }"
       ></v-img>
 
       <v-card-title> {{ data.model }} </v-card-title>

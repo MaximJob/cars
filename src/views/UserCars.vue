@@ -6,7 +6,8 @@
         v-for="(car, i) in cars"
         :key="car.id + i"
         class="mx-auto"
-        max-width="400"
+        min-width="240"
+        width="100%"
         :style="{ marginBottom: '20px' }"
       >
         <v-img class="white--text align-end" height="200px" :src="car.image">
@@ -46,22 +47,22 @@
       </v-card>
     </div>
 
-    <accept-popup
-      v-if="popupShowing"
-      @remove="removeCar()"
-      @cancel="hidePopup()"
-    ></accept-popup>
+    <v-overlay :absolute="absolute" :value="overlay">
+      <v-btn class="button" color="error" @click="removeCar()">Удалить</v-btn>
+      <v-btn class="button" color="success" @click="hidePopup()">
+        Отменить
+      </v-btn>
+    </v-overlay>
   </div>
 </template>
 
 <script>
-import AcceptPopup from "../components/userCars/AcceptPopup.vue";
 export default {
-  components: { AcceptPopup },
   data() {
     return {
+      absolute: true,
+      overlay: false,
       carId: "",
-      popupShowing: false,
     };
   },
   computed: {
@@ -85,11 +86,11 @@ export default {
       this.$store.dispatch("cars/removeFavorite", car.id);
     },
     showPopup(car) {
+      this.overlay = true;
       this.carId = car.id;
-      this.popupShowing = true;
     },
     hidePopup() {
-      this.popupShowing = false;
+      this.overlay = false;
     },
   },
   async beforeMount() {
@@ -110,6 +111,11 @@ export default {
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: auto;
     grid-gap: 20px;
+  }
+
+  .button {
+    display: block;
+    margin: 20px auto;
   }
 
   @media screen and(max-width: 1320px) {

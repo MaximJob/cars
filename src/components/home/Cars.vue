@@ -6,8 +6,8 @@
       height="100%"
       v-model="model"
       :show-arrows="false"
-      :style="{ padding: pages.length / 9 > 1 ? '0 0 60px 0' : null }"
-      :hide-delimiters="pages.length / 9 < 1 ? true : false"
+      :style="{ padding: pages.length > 1 ? '0 0 110px 0' : null }"
+      :hide-delimiters="pages.length < 2"
     >
       <v-carousel-item height="100%" v-for="page in pages" :key="page[0].id">
         <v-sheet height="100%" tile>
@@ -68,6 +68,11 @@ export default {
 
   h4 {
     height: 40px;
+  }
+
+  > div {
+    width: 100%;
+    height: 100%;
   }
 
   .wrap {

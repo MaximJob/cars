@@ -1,9 +1,7 @@
 <template>
   <v-app>
     <the-header></the-header>
-    <v-main
-      :class="{ 'pa-0': $route.name === 'Page404' || $route.name === 'Users' }"
-    >
+    <v-main :class="{ 'pa-0': $route.name === 'Page404' }">
       <loading v-show="loading"></loading>
       <router-view v-show="!loading" />
     </v-main>
@@ -91,5 +89,9 @@ button {
 
 .v-carousel__controls__item {
   margin: 0 !important;
+}
+
+.v-responsive__content {
+  width: auto !important;
 }
 </style>
