@@ -67,9 +67,7 @@ export default {
     },
   },
   async beforeMount() {
-    this.$store.commit("startLoading");
     await this.$store.dispatch("loadFavorite");
-    this.$store.commit("endLoading");
   },
 };
 </script>

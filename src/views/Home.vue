@@ -23,7 +23,6 @@ export default {
     },
   },
   async beforeMount() {
-    this.$store.commit("startLoading");
     if (this.$route.query.brandName && this.$route.query.brandId) {
       await this.$store.dispatch("loadCars", {
         name: this.$route.query.brandName,
@@ -33,7 +32,6 @@ export default {
       this.$store.commit("setCars", []);
       await this.$store.dispatch("loadBrands");
     }
-    this.$store.commit("endLoading");
   },
   destroyed() {
     this.$store.commit("resetFilters");

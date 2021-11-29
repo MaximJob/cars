@@ -24,9 +24,7 @@ export default {
     };
   },
   async beforeMount() {
-    this.$store.commit("startLoading");
     await this.$store.dispatch("loadUsers");
-    this.$store.commit("endLoading");
   },
   computed: {
     users() {

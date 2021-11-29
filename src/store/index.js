@@ -204,14 +204,11 @@ export default new Vuex.Store({
   },
   actions: {
     async loadUsers(context) {
-      const headers = {
-        headers: {
-          Authorization: context.state.access_token,
-        },
-      };
-      getData("user", {}, headers).then((users) => {
+      context.commit("startLoading");
+      await getData("user").then((users) => {
         context.commit("setUsers", users);
       });
+      context.commit("endLoading");
     },
 
     async register(context, info) {
@@ -248,6 +245,7 @@ export default new Vuex.Store({
     },
 
     async loadBrands(context) {
+      context.commit("startLoading");
       let url = "car/brand-list";
       const brand = context.state.filters.brand.value;
       if (brand) {
@@ -257,15 +255,19 @@ export default new Vuex.Store({
         context.commit("setBrands", brands);
         context.commit("resetCars");
       });
+      context.commit("endLoading");
     },
     async loadDetailedCar(context, { id }) {
+      context.commit("startLoading");
       await context.dispatch("loadMyCars");
       await context.dispatch("loadFavorite");
       await getData(`car/about-model?model=${id}`).then((info) => {
         context.commit("setDetailedCar", info);
       });
+      context.commit("endLoading");
     },
     async loadCars(context, { name, id }) {
+      context.commit("startLoading");
       await getData(`car/model-list?brand=${id}`).then(({ models }) => {
         context.commit("setCars", models);
         context.state.filters.brand = {
@@ -273,20 +275,25 @@ export default new Vuex.Store({
           value: name,
         };
       });
+      context.commit("endLoading");
     },
     async loadMyCars(context) {
+      context.commit("startLoading");
       await getData("manager/get-list-ownership-car", {
         user_id: localStorage.id,
       }).then(({ cars }) => {
         context.commit("setMyCars", cars);
       });
+      context.commit("endLoading");
     },
     async loadFavorite(context) {
+      context.commit("startLoading");
       await getData("manager/get-list-favorite-car", {
         user_id: localStorage.id,
       }).then(({ cars }) => {
         context.commit("setFavorite", cars);
       });
+      context.commit("endLoading");
     },
     async filterCars(context) {
       let url = "car/model-list-filter?";
