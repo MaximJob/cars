@@ -1,6 +1,8 @@
 <template>
   <div class="contextField">
-    <Brands v-if="!cars.length"></Brands>
+    <Brands
+      v-if="!cars.length && (isFiltersEmpty || isFiltersEmptyExceptBrand)"
+    ></Brands>
     <Cars v-else></Cars>
   </div>
 </template>
@@ -18,6 +20,25 @@ export default {
     cars: {
       type: Array,
       required: true,
+    },
+  },
+  computed: {
+    isFiltersEmpty() {
+      const filters = this.$store.getters["filters"];
+      let result = true;
+      const keys = Object.keys(filters);
+      keys.forEach((el) => (result &= filters[el].value === ""));
+      return result;
+    },
+
+    isFiltersEmptyExceptBrand() {
+      const filters = this.$store.getters["filters"];
+      let result = true;
+      let keys = Object.keys(filters);
+      keys = keys.filter((el) => el !== "brand");
+      keys.forEach((el) => (result &= filters[el].value === ""));
+      result &= filters.brand.value !== "";
+      return result;
     },
   },
 };

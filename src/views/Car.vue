@@ -66,6 +66,7 @@
         v-if="detailedCar.others.length"
         :height="400"
         :hide-delimiters="true"
+        :show-arrows="detailedCar.others.length > 1"
         v-model="model"
       >
         <v-carousel-item v-for="car in detailedCar.others" :key="car.id">
