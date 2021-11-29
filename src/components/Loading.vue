@@ -1,6 +1,8 @@
 <template>
   <div class="loading">
-    <div class="circle"></div>
+    <div class="wrap">
+      <div class="loader"></div>
+    </div>
   </div>
 </template>
 
@@ -15,52 +17,88 @@ export default {};
   top: 0;
   width: 100%;
   height: 100%;
-  background-color: white;
   z-index: 2;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0 0 80px 0;
 
-  .circle {
-    width: 60px;
-    height: 60px;
-    background-color: #9bb1ff;
-    animation: loading 1s linear infinite;
-    position: relative;
+  .wrap {
+    padding: 15%;
+    background-color: #9bb1ffb7;
+    border-radius: 20px;
   }
 
-  .circle::after {
-    content: "";
-    position: absolute;
-    left: 4px;
-    top: 4px;
-    width: 52px;
-    height: 52px;
-    background-color: white;
+  .loader {
+    animation: rotate 1s infinite;
+    height: 50px;
+    width: 50px;
   }
 
-  .circle::before {
-    content: "";
-    position: absolute;
-    left: -10px;
-    top: -10px;
-    width: 40px;
-    height: 40px;
-    background-color: white;
-  }
-
-  .circle,
-  .circle::after {
+  .loader:before,
+  .loader:after {
     border-radius: 50%;
+    content: "";
+    display: block;
+    height: 20px;
+    width: 20px;
+  }
+  .loader:before {
+    animation: ball1 1s infinite;
+    background-color: #cb2025;
+    box-shadow: 30px 0 0 #f8b334;
+    margin-bottom: 10px;
+  }
+  .loader:after {
+    animation: ball2 1s infinite;
+    background-color: #00a096;
+    box-shadow: 30px 0 0 #97bf0d;
   }
 
-  @keyframes loading {
-    from {
-      transform: rotate(0);
+  @keyframes rotate {
+    0% {
+      -webkit-transform: rotate(0deg) scale(0.8);
+      -moz-transform: rotate(0deg) scale(0.8);
     }
-    to {
-      transform: rotate(360deg);
+    50% {
+      -webkit-transform: rotate(360deg) scale(1.2);
+      -moz-transform: rotate(360deg) scale(1.2);
+    }
+    100% {
+      -webkit-transform: rotate(720deg) scale(0.8);
+      -moz-transform: rotate(720deg) scale(0.8);
+    }
+  }
+
+  @keyframes ball1 {
+    0% {
+      box-shadow: 30px 0 0 #f8b334;
+    }
+    50% {
+      box-shadow: 0 0 0 #f8b334;
+      margin-bottom: 0;
+      -webkit-transform: translate(15px, 15px);
+      -moz-transform: translate(15px, 15px);
+    }
+    100% {
+      box-shadow: 30px 0 0 #f8b334;
+      margin-bottom: 10px;
+    }
+  }
+
+  @keyframes ball2 {
+    0% {
+      box-shadow: 30px 0 0 #97bf0d;
+    }
+    50% {
+      box-shadow: 0 0 0 #97bf0d;
+      margin-top: -20px;
+      -webkit-transform: translate(15px, 15px);
+      -moz-transform: translate(15px, 15px);
+    }
+    100% {
+      box-shadow: 30px 0 0 #97bf0d;
+      margin-top: 0;
     }
   }
 }
