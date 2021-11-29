@@ -39,7 +39,7 @@ export default {
   },
   computed: {
     pages() {
-      let pages = [];
+      const pages = [];
       let page = [];
       const brands = this.$store.getters["brands"];
       brands.forEach((el) => {

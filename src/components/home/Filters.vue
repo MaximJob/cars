@@ -190,6 +190,7 @@ export default {
         this.startSendTimer();
         if (this.isFiltersEmpty) {
           this.$store.commit("resetCars");
+          this.$store.commit("resetFilters");
         } else {
           this.$store.commit("setFilters", { ...this.filters });
           if (this.isFiltersEmptyExceptBrand) {
