@@ -105,7 +105,7 @@ export default {
           email: this.email,
           password: this.password,
         };
-        this.$store.dispatch("login/register", info);
+        this.$store.dispatch("register", info);
       }
     },
     toLogin() {

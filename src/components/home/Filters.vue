@@ -12,61 +12,100 @@
         v-model.trim="filters.brand.value"
       ></v-text-field>
 
-      <v-select
-        v-model="filters.volume"
-        :items="volumes"
-        :item-text="volumes.text"
-        :item-value="volumes.value"
-        filled
-        label="Объем двигателя"
-        persistent-hint
-        return-object
-        single-line
-      ></v-select>
+      <div class="filter">
+        <v-select
+          v-model="filters.volume"
+          :items="volumes"
+          :item-text="volumes.text"
+          :item-value="volumes.value"
+          filled
+          label="Объем двигателя"
+          persistent-hint
+          return-object
+          single-line
+        ></v-select>
 
-      <v-select
-        v-model="filters.transmission"
-        :items="transmissions"
-        :item-text="transmissions.text"
-        :item-value="transmissions.value"
-        filled
-        label="Трансмиссия"
-        persistent-hint
-        return-object
-        single-line
-      ></v-select>
+        <v-btn
+          v-if="filters.volume.value !== ''"
+          text
+          icon
+          @click="resetFilter('volume')"
+        >
+          <v-icon>mdi-delete</v-icon></v-btn
+        >
+      </div>
 
-      <v-select
-        v-model="filters.engine"
-        :items="engines"
-        :item-text="engines.text"
-        :item-value="engines.value"
-        filled
-        label="Двигатель"
-        persistent-hint
-        return-object
-        single-line
-      ></v-select>
+      <div class="filter">
+        <v-select
+          v-model="filters.transmission"
+          :items="transmissions"
+          :item-text="transmissions.text"
+          :item-value="transmissions.value"
+          filled
+          label="Трансмиссия"
+          persistent-hint
+          return-object
+          single-line
+        ></v-select>
 
-      <v-select
-        v-model="filters.body"
-        :items="bodys"
-        :item-text="bodys.text"
-        :item-value="bodys.value"
-        filled
-        label="Корпус"
-        persistent-hint
-        return-object
-        single-line
-      ></v-select>
+        <v-btn
+          v-if="filters.transmission.value !== ''"
+          text
+          icon
+          @click="resetFilter('transmission')"
+        >
+          <v-icon>mdi-delete</v-icon></v-btn
+        >
+      </div>
 
-      <v-btn elevation="1" @click="filter()">Искать</v-btn>
-      <v-btn
-        v-if="!isFilteresEmpty"
-        elevation="2"
-        @click="reset()"
-        class="mr-4"
-      >
+      <div class="filter">
+        <v-select
+          v-model="filters.engine"
+          :items="engines"
+          :item-text="engines.text"
+          :item-value="engines.value"
+          filled
+          label="Двигатель"
+          persistent-hint
+          return-object
+          single-line
+        ></v-select>
+
+        <v-btn
+          v-if="filters.engine.value !== ''"
+          text
+          icon
+          @click="resetFilter('engine')"
+        >
+          <v-icon>mdi-delete</v-icon></v-btn
+        >
+      </div>
+
+      <div class="filter">
+        <v-select
+          v-model="filters.body"
+          :items="bodys"
+          :item-text="bodys.text"
+          :item-value="bodys.value"
+          filled
+          label="Корпус"
+          persistent-hint
+          return-object
+          single-line
+        ></v-select>
+
+        <v-btn
+          v-if="filters.body.value !== ''"
+          text
+          icon
+          @click="resetFilter('body')"
+        >
+          <v-icon>mdi-delete</v-icon></v-btn
+        >
+      </div>
+
+      <v-btn type="action" elevation="1">Искать</v-btn>
+      <v-btn v-if="!isFiltersEmpty" elevation="2" @click="reset()" class="mr-4">
         Сбросить
       </v-btn>
     </form>
@@ -118,6 +157,8 @@ export default {
         },
       },
 
+      sendOpportunity: true,
+
       volumes: [
         {
           text: "1",
@@ -140,6 +181,7 @@ export default {
           value: "5.0",
         },
       ],
+
       transmissions: [
         {
           text: "Механика",
@@ -158,6 +200,7 @@ export default {
           value: "вариатор",
         },
       ],
+
       engines: [
         {
           text: "Бензин",
@@ -180,6 +223,7 @@ export default {
           value: "электро",
         },
       ],
+
       bodys: [
         {
           text: "Купе",
@@ -264,35 +308,62 @@ export default {
       ],
     };
   },
+
   computed: {
-    isFilteresEmpty() {
+    isFiltersEmpty() {
       let result = true;
       const keys = Object.keys(this.filters);
       keys.forEach((el) => (result &= this.filters[el].value === ""));
       return result;
     },
-    isFilteresEmptyExceptBrand() {
+
+    isFiltersEmptyExceptBrand() {
       let result = true;
-      const keys = Object.keys(this.filters).filter((el) => el !== "brand");
+      let keys = Object.keys(this.filters);
+      keys = keys.filter((el) => el !== "brand");
       keys.forEach((el) => (result &= this.filters[el].value === ""));
       result &= this.filters.brand.value !== "";
       return result;
     },
   },
+
   methods: {
     filter() {
-      if (this.isFilteresEmptyExceptBrand) {
-        this.$store.commit("cars/setFilters", { ...this.filters });
-        this.$store.dispatch("cars/loadBrands");
-      } else if (!this.isFilteresEmpty) {
-        this.$store.commit("cars/setFilters", { ...this.filters });
-        this.$store.dispatch("cars/filterCars");
+      if (this.sendOpportunity) {
+        this.startSendTimer();
+        if (this.isFiltersEmpty) {
+          this.$store.commit("cars/resetCars");
+        } else {
+          this.$store.commit("cars/setFilters", { ...this.filters });
+          if (this.isFiltersEmptyExceptBrand) {
+            this.$store.dispatch("cars/loadBrands");
+          } else if (!this.isFiltersEmpty) {
+            this.$store.dispatch("cars/filterCars");
+          }
+        }
       }
     },
+
+    startSendTimer() {
+      this.sendOpportunity = false;
+      setTimeout(() => {
+        this.sendOpportunity = true;
+      }, 500);
+    },
+
+    resetFilter(filter) {
+      this.filters[filter] = {
+        text: "",
+        value: "",
+      };
+      this.filter();
+    },
+
     reset() {
       if (
         this.$route.query.brandName !== "" &&
-        this.$route.query.brandId !== ""
+        this.$route.query.brandId !== "" &&
+        this.$route.path !== "/"
       ) {
         this.$router.push("/");
       }
@@ -301,6 +372,7 @@ export default {
       this.$store.dispatch("cars/loadBrands");
     },
   },
+
   watch: {
     brandName() {
       this.filters.brand = this.$props.brandName;
@@ -314,6 +386,12 @@ export default {
   width: 100%;
   height: 100%;
   background-color: white;
+
+  .filter {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 
   h4 {
     height: 40px;

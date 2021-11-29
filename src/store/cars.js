@@ -42,6 +42,9 @@ export default {
     setCars(state, cars) {
       state.cars = cars;
     },
+    resetCars(state) {
+      state.cars = [];
+    },
     setFavorite(state, favorite) {
       state.favorite = favorite;
     },
@@ -145,7 +148,7 @@ export default {
       }
       await getData(url).then(({ brands }) => {
         context.commit("setBrands", brands);
-        context.commit("setCars", []);
+        context.commit("resetCars");
       });
     },
     async loadDetailedCar(context, { id }) {
@@ -165,18 +168,18 @@ export default {
       });
     },
     async loadMyCars(context) {
-      await getData("manager/get-list-ownership-car", { user_id: 129 }).then(
-        ({ cars }) => {
-          context.commit("setMyCars", cars);
-        }
-      );
+      await getData("manager/get-list-ownership-car", {
+        user_id: localStorage.id,
+      }).then(({ cars }) => {
+        context.commit("setMyCars", cars);
+      });
     },
     async loadFavorite(context) {
-      await getData("manager/get-list-favorite-car", { user_id: 129 }).then(
-        ({ cars }) => {
-          context.commit("setFavorite", cars);
-        }
-      );
+      await getData("manager/get-list-favorite-car", {
+        user_id: localStorage.id,
+      }).then(({ cars }) => {
+        context.commit("setFavorite", cars);
+      });
     },
     async filterCars(context) {
       let url = "car/model-list-filter?";
@@ -195,28 +198,28 @@ export default {
 
     async addCar(context, generation_id) {
       await postData("manager/add-ownership", {
-        user_id: "129",
+        user_id: localStorage.id,
         generation_id,
       });
       await context.dispatch("loadMyCars");
     },
     async removeCar(context, generation_id) {
       await postData("manager/remove-ownership", {
-        user_id: "129",
+        user_id: localStorage.id,
         generation_id,
       });
       await context.dispatch("loadMyCars");
     },
     async addFavorite(context, generation_id) {
       await postData("manager/add-favorite", {
-        user_id: "129",
+        user_id: localStorage.id,
         generation_id,
       });
       await context.dispatch("loadFavorite");
     },
     async removeFavorite(context, generation_id) {
       await postData("manager/remove-favorite", {
-        user_id: "129",
+        user_id: localStorage.id,
         generation_id,
       });
       await context.dispatch("loadFavorite");

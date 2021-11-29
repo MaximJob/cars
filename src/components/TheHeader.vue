@@ -75,13 +75,12 @@ export default {
   methods: {
     logout() {
       this.$store.commit("cars/reset");
-      this.$store.commit("users/reset");
-      this.$store.dispatch("login/logout");
+      this.$store.dispatch("logout");
     },
   },
   computed: {
     logged() {
-      return this.$store.getters["login/logged"];
+      return this.$store.getters["logged"];
     },
     routeName() {
       return this.$route.meta.title;

@@ -25,12 +25,12 @@ export default {
   },
   async beforeMount() {
     this.$store.commit("startLoading");
-    await this.$store.dispatch("users/loadUsers");
+    await this.$store.dispatch("loadUsers");
     this.$store.commit("endLoading");
   },
   computed: {
     users() {
-      return this.$store.getters["users/users"];
+      return this.$store.getters["users"];
     },
   },
 };
