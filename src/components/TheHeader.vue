@@ -74,7 +74,7 @@ export default {
   },
   methods: {
     logout() {
-      this.$store.commit("cars/reset");
+      this.$store.commit("reset");
       this.$store.dispatch("logout");
     },
   },

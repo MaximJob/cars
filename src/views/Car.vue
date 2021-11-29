@@ -93,28 +93,28 @@ export default {
   },
   methods: {
     addCar() {
-      this.$store.dispatch("cars/addCar", this.car.id);
+      this.$store.dispatch("addCar", this.car.id);
     },
     removeCar() {
-      this.$store.dispatch("cars/removeCar", this.car.id);
+      this.$store.dispatch("removeCar", this.car.id);
     },
     addFavorite() {
-      this.$store.dispatch("cars/addFavorite", this.car.id);
+      this.$store.dispatch("addFavorite", this.car.id);
     },
     removeFavorite() {
-      this.$store.dispatch("cars/removeFavorite", this.car.id);
+      this.$store.dispatch("removeFavorite", this.car.id);
     },
   },
   computed: {
     detailedCar() {
-      return this.$store.getters["cars/detailedCar"];
+      return this.$store.getters["detailedCar"];
     },
     isItMyCar() {
-      const myCars = this.$store.getters["cars/myCars"];
+      const myCars = this.$store.getters["myCars"];
       return myCars.find((el) => el.id === this.car.id);
     },
     isItMyFavorite() {
-      const favorite = this.$store.getters["cars/favorite"];
+      const favorite = this.$store.getters["favorite"];
       return favorite.find((el) => el.id === this.car.id);
     },
     currentRouteQueryId() {
@@ -128,14 +128,14 @@ export default {
   },
   watch: {
     currentRouteQueryId() {
-      this.$store.dispatch("cars/loadDetailedCar", {
+      this.$store.dispatch("loadDetailedCar", {
         id: this.currentRouteQueryId,
       });
     },
   },
   async beforeMount() {
     this.$store.commit("startLoading");
-    await this.$store.dispatch("cars/loadDetailedCar", {
+    await this.$store.dispatch("loadDetailedCar", {
       id: this.currentRouteQueryId,
     });
     this.$store.commit("endLoading");

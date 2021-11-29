@@ -332,13 +332,13 @@ export default {
       if (this.sendOpportunity) {
         this.startSendTimer();
         if (this.isFiltersEmpty) {
-          this.$store.commit("cars/resetCars");
+          this.$store.commit("resetCars");
         } else {
-          this.$store.commit("cars/setFilters", { ...this.filters });
+          this.$store.commit("setFilters", { ...this.filters });
           if (this.isFiltersEmptyExceptBrand) {
-            this.$store.dispatch("cars/loadBrands");
+            this.$store.dispatch("loadBrands");
           } else if (!this.isFiltersEmpty) {
-            this.$store.dispatch("cars/filterCars");
+            this.$store.dispatch("filterCars");
           }
         }
       }
@@ -367,9 +367,9 @@ export default {
       ) {
         this.$router.push("/");
       }
-      this.$store.commit("cars/resetFilters");
-      this.filters = this.$store.getters["cars/filters"];
-      this.$store.dispatch("cars/loadBrands");
+      this.$store.commit("resetFilters");
+      this.filters = this.$store.getters["filters"];
+      this.$store.dispatch("loadBrands");
     },
   },
 

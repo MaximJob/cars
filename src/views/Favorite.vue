@@ -48,27 +48,27 @@
 export default {
   computed: {
     cars() {
-      return this.$store.getters["cars/favorite"];
+      return this.$store.getters["favorite"];
     },
   },
   methods: {
     isItMyCar(car) {
-      const myCars = this.$store.getters["cars/myCars"];
+      const myCars = this.$store.getters["myCars"];
       return myCars.find((el) => el.id === car.id);
     },
     addCar(car) {
-      this.$store.dispatch("cars/addCar", car.id);
+      this.$store.dispatch("addCar", car.id);
     },
     removeCar(car) {
-      this.$store.dispatch("cars/removeCar", car.id);
+      this.$store.dispatch("removeCar", car.id);
     },
     removeFavorite(car) {
-      this.$store.dispatch("cars/removeFavorite", car.id);
+      this.$store.dispatch("removeFavorite", car.id);
     },
   },
   async beforeMount() {
     this.$store.commit("startLoading");
-    await this.$store.dispatch("cars/loadFavorite");
+    await this.$store.dispatch("loadFavorite");
     this.$store.commit("endLoading");
   },
 };

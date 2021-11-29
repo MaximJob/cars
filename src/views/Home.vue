@@ -13,30 +13,30 @@ export default {
   components: { ContextField, Filters },
   computed: {
     brands() {
-      return this.$store.getters["cars/brands"];
+      return this.$store.getters["brands"];
     },
     cars() {
-      return this.$store.getters["cars/cars"];
+      return this.$store.getters["cars"];
     },
     filtersBrand() {
-      return this.$store.getters["cars/filters"].brand;
+      return this.$store.getters["filters"].brand;
     },
   },
   async beforeMount() {
     this.$store.commit("startLoading");
     if (this.$route.query.brandName && this.$route.query.brandId) {
-      await this.$store.dispatch("cars/loadCars", {
+      await this.$store.dispatch("loadCars", {
         name: this.$route.query.brandName,
         id: this.$route.query.brandId,
       });
     } else {
-      this.$store.commit("cars/setCars", []);
-      await this.$store.dispatch("cars/loadBrands");
+      this.$store.commit("setCars", []);
+      await this.$store.dispatch("loadBrands");
     }
     this.$store.commit("endLoading");
   },
   destroyed() {
-    this.$store.commit("cars/resetFilters");
+    this.$store.commit("resetFilters");
   },
 };
 </script>

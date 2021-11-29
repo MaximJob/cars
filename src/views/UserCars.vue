@@ -67,23 +67,23 @@ export default {
   },
   computed: {
     cars() {
-      return this.$store.getters["cars/myCars"];
+      return this.$store.getters["myCars"];
     },
   },
   methods: {
     isItMyFavorite(car) {
-      const favorite = this.$store.getters["cars/favorite"];
+      const favorite = this.$store.getters["favorite"];
       return favorite.find((el) => el.id === car.id);
     },
     removeCar() {
-      this.$store.dispatch("cars/removeCar", this.carId);
+      this.$store.dispatch("removeCar", this.carId);
       this.hidePopup();
     },
     addFavorite(car) {
-      this.$store.dispatch("cars/addFavorite", car.id);
+      this.$store.dispatch("addFavorite", car.id);
     },
     removeFavorite(car) {
-      this.$store.dispatch("cars/removeFavorite", car.id);
+      this.$store.dispatch("removeFavorite", car.id);
     },
     showPopup(car) {
       this.overlay = true;
@@ -95,7 +95,7 @@ export default {
   },
   async beforeMount() {
     this.$store.commit("startLoading");
-    await this.$store.dispatch("cars/loadMyCars");
+    await this.$store.dispatch("loadMyCars");
     this.$store.commit("endLoading");
   },
 };

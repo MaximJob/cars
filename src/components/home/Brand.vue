@@ -69,7 +69,7 @@ export default {
           brandId: this.$props.data.id,
         },
       });
-      this.$store.dispatch("cars/loadCars", {
+      this.$store.dispatch("loadCars", {
         name: this.$props.data.name,
         id: this.$props.data.id,
       });

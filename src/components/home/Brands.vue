@@ -41,7 +41,7 @@ export default {
     pages() {
       let pages = [];
       let page = [];
-      const brands = this.$store.getters["cars/brands"];
+      const brands = this.$store.getters["brands"];
       brands.forEach((el) => {
         if (page.length < 9) page.push(el);
         else {
