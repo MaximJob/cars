@@ -12,12 +12,35 @@ Vue.use(VueResource);
 
 Vue.http.options.root = "https://catalogauto.we-demonstrate2.ru/api/";
 
-// Vue.http.interceptors.push((request, next) => {
-//   request.headers.set("Access-Control-Allow-Origin", "*");
-//   request.headers.set("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
-//   request.headers.set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
-//   next();
-// });
+Vue.http.interceptors.before = function (request) {
+  if (this.previousRequest) {
+    this.previousRequest.abort();
+  }
+  this.previousRequest = request;
+};
+
+Vue.http.interceptors.push((request, next) => {
+  const access_token = localStorage.access_token || "";
+  //const refresh_token = sessionStorage.refresh_token || "";
+  const exception = request.url === "user/update-tokens";
+
+  // if (refresh_token !== "" && access_token === "" && exception) {
+  //   store.dispatch("refreshTokens", refresh_token);
+  // }
+
+  if (access_token !== "" && !exception) {
+    request.headers.set("Authorization", access_token);
+  }
+
+  next((response) => {
+    const status = Math.floor(response.status / 100);
+    if (status === 4 && access_token === "") {
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("refresh_token");
+      router.push("/login");
+    }
+  });
+});
 
 Vue.config.productionTip = false;
 

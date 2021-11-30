@@ -2,10 +2,13 @@
   <aside class="filters">
     <h4>Фильтры</h4>
     <form @submit.prevent="filter()">
-      <v-text-field
-        label="Модель"
+      <v-autocomplete
         v-model.trim="filters.model.value"
-      ></v-text-field>
+        :items="carNamesList"
+        label="Модель"
+        @keyup="loadCarNamesList()"
+        :clearable="true"
+      ></v-autocomplete>
 
       <v-text-field
         label="Бренд"
@@ -18,7 +21,6 @@
           :items="volumes"
           :item-text="volumes.text"
           :item-value="volumes.value"
-          filled
           label="Объем двигателя"
           persistent-hint
           return-object
@@ -41,7 +43,6 @@
           :items="transmissions"
           :item-text="transmissions.text"
           :item-value="transmissions.value"
-          filled
           label="Трансмиссия"
           persistent-hint
           return-object
@@ -64,7 +65,6 @@
           :items="engines"
           :item-text="engines.text"
           :item-value="engines.value"
-          filled
           label="Двигатель"
           persistent-hint
           return-object
@@ -87,7 +87,6 @@
           :items="bodys"
           :item-text="bodys.text"
           :item-value="bodys.value"
-          filled
           label="Корпус"
           persistent-hint
           return-object
@@ -167,6 +166,10 @@ export default {
   },
 
   computed: {
+    carNamesList() {
+      return this.$store.getters["carNamesList"].map((el) => el.model);
+    },
+
     isFiltersEmpty() {
       let result = true;
       const keys = Object.keys(this.filters);
@@ -200,6 +203,12 @@ export default {
           }
         }
       }
+    },
+
+    loadCarNamesList() {
+      const name = this.filters.model.value;
+      console.log(name);
+      this.$store.dispatch("loadCarNamesList", { name });
     },
 
     startSendTimer() {

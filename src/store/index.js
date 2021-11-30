@@ -2,6 +2,7 @@ import Vue from "vue";
 import Vuex from "vuex";
 import router from "@/router";
 import filtersState from "./filters.js";
+import { postData, getData, refactorTokens } from "../api";
 import header from "./header.js";
 
 Vue.use(Vuex);
@@ -12,15 +13,12 @@ export default new Vuex.Store({
 
     users: [],
 
-    access_token: localStorage.access_token ? localStorage.access_token : "",
-    refresh_token: sessionStorage.refresh_token
-      ? sessionStorage.refresh_token
-      : "",
     logged: !!localStorage.access_token,
     id: localStorage.id ? localStorage.id : 0,
 
     brands: [],
     cars: [],
+    carNamesList: [],
     filters: {
       model: {
         text: "",
@@ -70,9 +68,7 @@ export default new Vuex.Store({
       localStorage.id = content.id;
       state.id = content.id;
       localStorage.access_token = content.access_token;
-      state.access_token = content.access_token;
       sessionStorage.refresh_token = content.refresh_token;
-      state.refreshToken = content.refresh_token;
     },
 
     setBrands(state, brands) {
@@ -80,6 +76,9 @@ export default new Vuex.Store({
     },
     setCars(state, cars) {
       state.cars = cars;
+    },
+    setCarNamesList(state, list) {
+      state.carNamesList = list;
     },
     resetCars(state) {
       state.cars = [];
@@ -175,12 +174,6 @@ export default new Vuex.Store({
       return state.users;
     },
 
-    access_token(state) {
-      return state.access_token;
-    },
-    refresh_token(state) {
-      return state.refreshToken;
-    },
     logged(state) {
       return state.logged;
     },
@@ -190,6 +183,9 @@ export default new Vuex.Store({
     },
     cars(state) {
       return state.cars;
+    },
+    carNamesList(state) {
+      return state.carNamesList;
     },
     myCars(state) {
       return state.myCars;
@@ -207,13 +203,7 @@ export default new Vuex.Store({
   actions: {
     async loadUsers(context) {
       context.commit("startLoading");
-
-      const url = "user";
-      const headers = {
-        Authorization: context.state.access_token,
-      };
-
-      await getData(url, {}, headers).then((users) => {
+      await getData("user").then((users) => {
         context.commit("setUsers", users);
       });
       context.commit("endLoading");
@@ -227,24 +217,23 @@ export default new Vuex.Store({
       });
     },
     async login(context, info) {
-      await postData("user/sing-in", info).then(async (tokens) => {
-        if (tokens !== {}) {
-          context.commit("setTokens", refactorTokens(tokens));
+      await postData("user/sing-in", info).then(async (content) => {
+        if (content.tokens) {
+          context.commit("setTokens", refactorTokens(content));
           context.commit("setLogged", true);
           await router.push("/");
         }
       });
     },
-    async refreshTokens(context) {
-      await postData(
-        "user/update-tokens",
-        {},
-        { rtoken: context.state.refresh_token }
-      ).then(async (response) => {
-        if (response !== {}) {
-          context.commit("setTokens", response.content);
+    async refreshTokens(context, rtoken) {
+      console.log(rtoken);
+      await postData("user/update-tokens", {}, { rtoken }).then(
+        async (response) => {
+          if (response !== {}) {
+            context.commit("setTokens", response.content);
+          }
         }
-      });
+      );
     },
     async logout(context) {
       context.commit("reset");
@@ -255,16 +244,13 @@ export default new Vuex.Store({
     async loadBrands(context) {
       context.commit("startLoading");
 
-      let url = "car/brand-list";
-      const headers = {
-        Authorization: context.state.access_token,
-      };
-
       const brand = context.state.filters.brand.value;
+
+      let url = "car/brand-list";
       if (brand) {
         url += "?char=" + brand[0].toLowerCase();
       }
-      await getData(url, {}, headers).then(({ brands }) => {
+      await getData(url).then(({ brands }) => {
         context.commit("setBrands", brands);
         context.commit("resetCars");
       });
@@ -272,28 +258,16 @@ export default new Vuex.Store({
     },
     async loadDetailedCar(context, { id }) {
       context.commit("startLoading");
-
-      const url = `car/about-model?model=${id}`;
-      const headers = {
-        Authorization: context.state.access_token,
-      };
-
       await context.dispatch("loadMyCars");
       await context.dispatch("loadFavorite");
-      await getData(url, {}, headers).then((info) => {
+      await getData(`car/about-model?model=${id}`).then((info) => {
         context.commit("setDetailedCar", info);
       });
       context.commit("endLoading");
     },
     async loadCars(context, { name, id }) {
       context.commit("startLoading");
-
-      const url = `car/model-list?brand=${id}`;
-      const headers = {
-        Authorization: context.state.access_token,
-      };
-
-      await getData(url, {}, headers).then(({ models }) => {
+      await getData(`car/model-list?brand=${id}`).then(({ models }) => {
         context.commit("setCars", models);
         context.state.filters.brand = {
           text: name,
@@ -302,16 +276,23 @@ export default new Vuex.Store({
       });
       context.commit("endLoading");
     },
+    async loadCarNamesList(context, { name }) {
+      if (name !== "") {
+        await getData(`car/get-model-id?name=${name}`).then(({ ids: list }) => {
+          list = list || [];
+          context.commit("setCarNamesList", list);
+        });
+      } else {
+        context.commit("setCarNamesList", []);
+      }
+    },
     async loadMyCars(context) {
       context.commit("startLoading");
 
       const url = "manager/get-list-ownership-car";
       const body = { user_id: context.state.id };
-      const headers = {
-        Authorization: context.state.access_token,
-      };
 
-      await getData(url, body, headers).then(({ cars }) => {
+      await getData(url, body).then(({ cars }) => {
         context.commit("setMyCars", cars);
       });
       context.commit("endLoading");
@@ -321,20 +302,14 @@ export default new Vuex.Store({
 
       const url = "manager/get-list-favorite-car";
       const body = { user_id: context.state.id };
-      const headers = {
-        Authorization: context.state.access_token,
-      };
 
-      await getData(url, body, headers).then(({ cars }) => {
+      await getData(url, body).then(({ cars }) => {
         context.commit("setFavorite", cars);
       });
       context.commit("endLoading");
     },
     async filterCars(context) {
       let url = "car/model-list-filter?";
-      const headers = {
-        Authorization: context.state.access_token,
-      };
 
       const filters = context.state.filters;
       const keys = Object.keys(filters);
@@ -344,7 +319,7 @@ export default new Vuex.Store({
           : ""
       );
       url = url.slice(0, -1);
-      await getData(url, {}, headers).then(({ models }) => {
+      await getData(url).then(({ models }) => {
         context.commit("setCars", models);
       });
     },
@@ -355,13 +330,7 @@ export default new Vuex.Store({
         user_id: context.state.id,
         generation_id,
       };
-      const headers = {
-        headers: {
-          Authorization: context.state.access_token,
-        },
-      };
-
-      await postData(url, body, headers);
+      await postData(url, body);
       await context.dispatch("loadMyCars");
     },
     async removeCar(context, generation_id) {
@@ -370,13 +339,8 @@ export default new Vuex.Store({
         user_id: context.state.id,
         generation_id,
       };
-      const headers = {
-        headers: {
-          Authorization: context.state.access_token,
-        },
-      };
 
-      await postData(url, body, headers);
+      await postData(url, body);
       await context.dispatch("loadMyCars");
     },
     async addFavorite(context, generation_id) {
@@ -385,13 +349,8 @@ export default new Vuex.Store({
         user_id: context.state.id,
         generation_id,
       };
-      const headers = {
-        headers: {
-          Authorization: context.state.access_token,
-        },
-      };
 
-      await postData(url, body, headers);
+      await postData(url, body);
       await context.dispatch("loadFavorite");
     },
     async removeFavorite(context, generation_id) {
@@ -400,51 +359,10 @@ export default new Vuex.Store({
         user_id: context.state.id,
         generation_id,
       };
-      const headers = {
-        headers: {
-          Authorization: context.state.access_token,
-        },
-      };
 
-      await postData(url, body, headers);
+      await postData(url, body);
       await context.dispatch("loadFavorite");
     },
   },
   modules: { filtersState, header },
 });
-
-async function postData(url, body = {}, headers = {}) {
-  let response = {};
-  await Vue.http
-    .post(url, body, headers)
-    .then((response) => response.json())
-    .then((data) => {
-      response = data.content;
-    })
-    .catch((error) => {
-      console.log(error);
-    });
-  return response;
-}
-
-async function getData(url, params = {}, headers = {}) {
-  let response = { models: [], brands: [], cars: [] };
-  await Vue.http
-    .get(url, { params, headers })
-    .then((response) => response.json())
-    .then((data) => {
-      response = data.content;
-    })
-    .catch((error) => {
-      console.log(error);
-    });
-  return response;
-}
-
-function refactorTokens(content) {
-  return {
-    access_token: "Bearer " + content.tokens.access_token,
-    refresh_token: content.tokens.refresh_token,
-    id: content.user.id,
-  };
-}
