@@ -20,10 +20,6 @@ export default new Vuex.Store({
     cars: [],
     carNamesList: [],
     filters: {
-      model: {
-        text: "",
-        value: "",
-      },
       brand: {
         text: "",
         value: "",

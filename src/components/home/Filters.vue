@@ -3,11 +3,14 @@
     <h4>Фильтры</h4>
     <form @submit.prevent="filter()">
       <v-autocomplete
-        v-model.trim="filters.model.value"
+        v-model.trim="model"
         :items="carNamesList"
+        :item-text="carNamesList.text"
+        :item-value="carNamesList.value"
         label="Модель"
-        @keyup="loadCarNamesList()"
+        @keyup="loadCarNamesList($event.target.value)"
         :clearable="true"
+        @click:clear="loadCarNamesList('')"
       ></v-autocomplete>
 
       <v-text-field
@@ -103,7 +106,9 @@
         >
       </div>
 
-      <v-btn type="action" elevation="1">Искать</v-btn>
+      <v-btn type="action" elevation="1" :disabled="isFiltersEmpty">
+        Искать
+      </v-btn>
       <v-btn v-if="!isFiltersEmpty" elevation="2" @click="reset()" class="mr-4">
         Сбросить
       </v-btn>
@@ -129,11 +134,8 @@ export default {
   },
   data() {
     return {
+      model: 0,
       filters: {
-        model: {
-          text: "",
-          value: "",
-        },
         brand: {
           text: "",
           value: "",
@@ -167,23 +169,34 @@ export default {
 
   computed: {
     carNamesList() {
-      return this.$store.getters["carNamesList"].map((el) => el.model);
+      let list = this.$store.getters["carNamesList"];
+      list = list.map((el) => ({
+        text: el.model,
+        value: el.id,
+      }));
+      return list;
     },
 
     isFiltersEmpty() {
       let result = true;
-      const keys = Object.keys(this.filters);
-      keys.forEach((el) => (result &= this.filters[el].value === ""));
-      return result;
+      const filters = this.filters;
+      const keys = Object.keys(filters);
+
+      keys.forEach((el) => (result &= this.isFilterEmpty(filters[el])));
+
+      return !!result;
     },
 
     isFiltersEmptyExceptBrand() {
       let result = true;
-      let keys = Object.keys(this.filters);
+      const filters = this.filters;
+      let keys = Object.keys(filters);
       keys = keys.filter((el) => el !== "brand");
-      keys.forEach((el) => (result &= this.filters[el].value === ""));
-      result &= this.filters.brand.value !== "";
-      return result;
+
+      keys.forEach((el) => (result &= this.isFilterEmpty(filters[el])));
+      result &= filters.brand.value !== "";
+
+      return !!result;
     },
   },
 
@@ -205,10 +218,18 @@ export default {
       }
     },
 
-    loadCarNamesList() {
-      const name = this.filters.model.value;
-      console.log(name);
-      this.$store.dispatch("loadCarNamesList", { name });
+    loadCarNamesList(value) {
+      if (this.sendOpportunity) {
+        this.startSendTimer();
+        const name = value;
+        this.$store.dispatch("loadCarNamesList", { name });
+      }
+    },
+
+    loadCar() {
+      if (this.model !== null && this.model !== undefined && this.model > 0) {
+        this.$router.push({ path: "/car", query: { id: this.model } });
+      }
     },
 
     startSendTimer() {
@@ -216,6 +237,11 @@ export default {
       setTimeout(() => {
         this.sendOpportunity = true;
       }, 500);
+    },
+
+    isFilterEmpty(_filter) {
+      const filter = _filter.value;
+      return filter === "" || filter === null || filter === undefined;
     },
 
     resetFilter(filter) {
@@ -243,6 +269,9 @@ export default {
   watch: {
     brandName() {
       this.filters.brand = this.$props.brandName;
+    },
+    model() {
+      this.loadCar();
     },
   },
 };
